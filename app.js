@@ -32,7 +32,7 @@ app.get('/',  async (req, res) => {
         res.render('index', { htmlData: htmlInfo });
     }
     catch(error){
-        console.error("" + error);
+        console.error("get contents error : " + error);
         res.sendStatus(404);
     }
 }) 
@@ -40,8 +40,8 @@ app.get('/',  async (req, res) => {
 async function buildHTML(data){
     try {
             const weatherRes = await fetchWeather(data);
-            if(weatherRes == 404){
-                return 404;
+            if(weatherRes.statusCode == 404){
+                return false;
             }
             let todayArray = [];
             for(let i=0;i<6;i++){
@@ -76,7 +76,7 @@ async function buildHTML(data){
 
         } catch (error) {
           console.error('Error in buildHTML:', error);
-          res.sendStatus(404);
+          return false;
         }
 }
 
@@ -88,7 +88,7 @@ async function getIp() {
     }
     catch(err){
         console.error("error in getIp is" + err);
-        res.sendStatus(404);
+        return false;
     }
     
 }
@@ -96,42 +96,35 @@ async function getIp() {
 async function fetchCity() {
     try {
         let publicIp   = await getIp();
-        const response = await fetch(`https://www.iplocate.io/api/lookup/${publicIp}/json?apikey=17e28da65f14ef679cb51a76a6edeefd`);
-        const result = await response.json();
-        return result.city; 
-    } 
+        const response = await fetch(`https://www.iplocate.io/api/lookup/${publicIp.publicIp}/json?apikey=17e28da65f14ef679cb51a76a6edeefd`);                const result   = await response.json();
+        return result.city;
+    }
     catch (err) {
         console.error("error in fetchCity is" + err);
-        res.sendStatus(404);
+        return false
     }
 }
 
 async function fetchWeather(city) {
     try{
-        const response = await fetch(`http://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=ce2100858e026bf52e7c89aa4154e525`)
-        if(response.status == 200){
-            const result = await response.json();
-            return result;
-        }else{
-            return 404;
-        }
+        const response = await fetch(`http://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=ce2100858e026bf52e7c89aa4154e525`);
+        const result = await response.json();
+        return result
     }
     catch(err){
         console.error("error in fetchWeather is" + err);
-        res.sendStatus(404);
+        return false;
     }
 }
 
 app.post('/city' , async (req,res) => {
     try{
         let htmlInfo = await buildHTML(req.body.searchCity);
-        if(htmlInfo == 404){
-            fetchCity().then(data => {
-                buildHTML(data).then(htmlInfo => {
-                  htmlInfo.error = true;
-                  res.render('index', { htmlData: htmlInfo });
-                })
-            });
+        if(!htmlInfo){
+            let data = await fetchCity();
+            let htmlInfo = await buildHTML(data);
+            htmlInfo.error = true;
+            res.render('index', { htmlData: htmlInfo });
         }else{
             htmlInfo.error = false;
             res.render('index', { htmlData: htmlInfo });
