@@ -1,4 +1,3 @@
-const axios = require('axios');
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
@@ -82,21 +81,22 @@ async function buildHTML(data){
 
 async function getIp() {
     try{
-        const response = await axios.get('https://api.ipify.org?format=json');
-        const publicIp = await response.data.ip;
+        const response = await fetch('https://api.ipify.org?format=json');
+        const responseJson = await response.json();
+        const publicIp =  responseJson.ip;
         return publicIp;
     }
     catch(err){
         console.error("error in getIp is" + err);
         return false;
     }
-    
 }
 
 async function fetchCity() {
     try {
         let publicIp   = await getIp();
-        const response = await fetch(`https://www.iplocate.io/api/lookup/${publicIp.publicIp}/json?apikey=17e28da65f14ef679cb51a76a6edeefd`);                const result   = await response.json();
+        const response = await fetch(`https://www.iplocate.io/api/lookup/${publicIp}/json?apikey=17e28da65f14ef679cb51a76a6edeefd`);                
+        const result   = await response.json();
         return result.city;
     }
     catch (err) {
