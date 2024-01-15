@@ -9,7 +9,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 
-const dayOfTheWeek = (loopCounter) => {
+const dayOfTheWeek = loopCounter => {
     let date = new Date;
     let today = date.getDay();
 
@@ -39,23 +39,22 @@ app.get('/',  async (req, res) => {
 async function buildHTML(data){
     try {
             const weatherRes = await fetchWeather(data);
-            if(weatherRes.statusCode == 404){
+            if(!weatherRes){
                 return false;
             }
             let todayArray = [];
             for(let i=0;i<6;i++){
-                let clock   =   Number(weatherRes.list[i]['dt_txt'].split(' ')[1].split(':')[0]) < 12 ?                     
-                                Number(weatherRes.list[i]['dt_txt'].split(' ')[1].split(':')[0])  + ":00 AM" : 
-                                Number(weatherRes.list[i]['dt_txt'].split(' ')[1].split(':')[0]) + "00: PM";
+                let time = Number(weatherRes.list[i]['dt_txt'].split(' ')[1].split(':')[0]);
+                let clock   =   time < 12 ? time + " :00 AM" : time + " :00 PM";
                 todayArray[i] = [ clock , 
                                 `public/images/${weatherRes.list[i].weather[0].icon}.png`,
                                 Math.floor(weatherRes.list[i].main.temp - 273.15)
                                 ];
             }
-            let sevenDayArray = [];
+            let fiveDayArray = [];
             for(i=0;i<5;i++){
                 let day = dayOfTheWeek(i);
-                sevenDayArray[i] = [ day , 
+                fiveDayArray[i] = [ day , 
                                     `public/images/${weatherRes.list[i].weather[0].icon}.png`,
                                     Math.floor(weatherRes.list[i].main.temp_min - 273) + '/' + Math.ceil(weatherRes.list[i].main.temp_max - 273.15)
                                 ];
@@ -68,7 +67,7 @@ async function buildHTML(data){
                 humidity: weatherRes.list[0].main.humidity,
                 desc: weatherRes.list[0].weather[0].description,
                 forecastToday: todayArray,
-                sevenDay: sevenDayArray
+                fiveDayForecast: fiveDayArray
             };
 
         return htmlInfo;
@@ -83,8 +82,7 @@ async function getIp() {
     try{
         const response = await fetch('https://api.ipify.org?format=json');
         const responseJson = await response.json();
-        const publicIp =  responseJson.ip;
-        return publicIp;
+        return  responseJson.ip;
     }
     catch(err){
         console.error("error in getIp is" + err);
@@ -101,7 +99,7 @@ async function fetchCity() {
     }
     catch (err) {
         console.error("error in fetchCity is" + err);
-        return false
+        return false;
     }
 }
 
