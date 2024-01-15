@@ -15,8 +15,8 @@
     <section>
         <header>
             <form action="/city" method="post">
-                <button id="searchForCity" type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
                 <input type="text" id="searchCity" name="searchCity" placeholder="<%= htmlData.error ? 'city not found' : 'search for city' %>" class="<%= htmlData.error ? 'redBorder' : '' %>">
+                <button id="searchForCity" type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
             </form>
         </header>
         <main>
@@ -24,8 +24,8 @@
                 <div id="todayDetails">
                     <div id="degree">
                         <h2><%= htmlData.city %></h2>
-                        <p><%= htmlData.mainDesc %></p>
                         <h2 id="temp"><%= htmlData.temp %><sup>&#176;</sup>c</h2>
+                        <p><%= htmlData.mainDesc %></p>
                         <p class="description"><%= htmlData.desc %></p>
                         <p class="description">humidity: <%= htmlData.humidity %></h2>
                     </div>
@@ -35,79 +35,40 @@
                 </div>
                 <div id="wholeDay">
                     <h4>FORECAST</h4>
-                    <div id="hours">
-                        <div id="morning">
-                            <div id="six">
-                                <p><%= htmlData.forecastToday[0][0]%></p>
-                                <div class="icon"><img src="<%= htmlData.forecastToday[0][1]%>"></div>
-                                <p class="degreeHour"><%= htmlData.forecastToday[0][2]%>°C</p>
-                            </div>
-                            <div id="nine">
-                                <p><%= htmlData.forecastToday[1][0]%></p>
-                                <div class="icon"><img src="<%= htmlData.forecastToday[1][1]%>"></div>
-                                <p class="degreeHour"><%= htmlData.forecastToday[1][2]%>°C</p>
-                            </div>
+                        <div id="hours">
+                            <% for(let i =0; i<3 ; i++) { %>
+                                <div>
+                                    <% for(let j=i*2;j<i*2+2;j++) { %>
+                                        <div>
+                                            <p> <%= htmlData.forecastToday[j][0] %></p>
+                                            <div class="icon"><img src=" <%= htmlData.forecastToday[j][1] %> " alt=""></div>
+                                            <p class="degree"> <%= htmlData.forecastToday[j][2] %></p>
+                                        </div>
+                                    <% } %>
+                                </div>
+                            <% } %>
                         </div>
-                        <div id="afternoon">
-                            <div id="twelve">
-                                <p><%= htmlData.forecastToday[2][0]%></p>
-                                <div class="icon"><img src="<%= htmlData.forecastToday[2][1]%>"></div>
-                                <p class="degreeHour"><%= htmlData.forecastToday[2][2]%>°C</p>
-                            </div>
-                            <div id="three">
-                                <p><%= htmlData.forecastToday[3][0]%></p>
-                                <div class="icon"><img src="<%= htmlData.forecastToday[3][1]%>"></div>
-                                <p class="degreeHour"><%= htmlData.forecastToday[3][2]%>°C</p>
-                            </div>
-                        </div>
-                        <div id="night">
-                            <div id="eighteen">
-                                <p><%= htmlData.forecastToday[4][0]%></p>
-                                <div class="icon"><img src="<%= htmlData.forecastToday[4][1]%>"></div>
-                                <p class="degreeHour"><%= htmlData.forecastToday[4][2]%>°C</p>
-                            </div>
-                            <div id="twentyone">
-                                <p><%= htmlData.forecastToday[5][0]%></p>
-                                <div class="icon"><img src="<%= htmlData.forecastToday[5][1]%>"></div>
-                                <p class="degreeHour"><%= htmlData.forecastToday[5][2]%>°C</p>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </section>
             <section id="weekInfo">
                 <div>5-DAY FORECAST</div>
                 <div id="daysMain">
-                    <div id="today" class="days">
-                        <p class="day-name"><%= htmlData.sevenDay[0][0] %></p>
-                        <img class="day-icon" src="<%= htmlData.sevenDay[0][1] %>"></img>
-                        <p class="day-degree"><%= htmlData.sevenDay[0][2] %></p>
-                    </div>
-                    <hr>
-                    <div class="days">
-                        <p class="day-name"><%= htmlData.sevenDay[1][0] %></p>
-                        <img class="day-icon" src="<%= htmlData.sevenDay[1][1] %>"></img>
-                        <p class="day-degree"><%= htmlData.sevenDay[1][2] %></p>
-                    </div>
-                    <hr>
-                    <div class="days">
-                        <p class="day-name"><%= htmlData.sevenDay[2][0] %></p>
-                        <img class="day-icon" src="<%= htmlData.sevenDay[2][1] %>"></img>
-                        <p class="day-degree"><%= htmlData.sevenDay[2][2] %></p>
-                    </div>
-                    <div class="days">
-                        <p class="day-name"><%= htmlData.sevenDay[3][0] %></p>
-                        <img class="day-icon" src="<%= htmlData.sevenDay[3][1] %>"></img>
-                        <p class="day-degree"><%= htmlData.sevenDay[3][2] %></p>
-                    </div>
-                    <div class="days">
-                        <p class="day-name"><%= htmlData.sevenDay[4][0] %></p>
-                        <img class="day-icon" src="<%= htmlData.sevenDay[4][1] %>"></img>
-                        <p class="day-degree"><%= htmlData.sevenDay[4][2] %></p>
-                    </div>
+                    <% for(let i =0; i < htmlData.fiveDayForecast.length; i++) { %>
+                        <div class="days">
+                            <p class="day_name"><%= htmlData.fiveDayForecast[i][0] %></p>
+                            <img class="day-icon" src="<%= htmlData.fiveDayForecast[i][1] %>"></img>
+                            <p class="day-degree"><%= htmlData.fiveDayForecast[i][2] %></p>
+                        </div>
+                        <% if(i == 0 || i == 1 ) { %>
+                            <hr>
+                        <% } %>
+                    <% } %>
                 </div>
             </section>
         </main>
     </section>
 </body>
 </html>
+
+
+  
