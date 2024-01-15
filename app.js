@@ -9,18 +9,22 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 
-const dayOfTheWeek = loopCounter => {
+let dayName = [];
+const dayOfTheWeek = () => {
     let date = new Date;
     let today = date.getDay();
 
-    if(today+loopCounter > 6){
-        return days[today+loopCounter - 7];
-    }
-    else if(loopCounter == 0){
-        return "today";
-    }
-    else{
-        return days[today+loopCounter];
+    for(let i = 0; i<5 ; i++){
+        if(today+i > 6){
+            dayName.push(days[today+i - 7]);
+        }
+        else if(i == 0){
+            dayName.push("today");
+        }
+        else{
+            dayName.push(days[today+i]);
+        }
+        console.log(dayName);
     }
 }
 
@@ -51,14 +55,24 @@ async function buildHTML(data){
                                 Math.floor(weatherRes.list[i].main.temp - 273.15)
                                 ];
             }
-            let fiveDayArray = [];
-            for(i=0;i<5;i++){
-                let day = dayOfTheWeek(i);
-                fiveDayArray[i] = [ day , 
-                                    `public/images/${weatherRes.list[i].weather[0].icon}.png`,
-                                    Math.floor(weatherRes.list[i].main.temp_min - 273) + '/' + Math.ceil(weatherRes.list[i].main.temp_max - 273.15)
-                                ];
-            }
+           
+                dayOfTheWeek();
+                let fiveDayArray = [];
+                let timeNow = weatherRes.list[0]['dt_txt'].split(' ')[1].split(':')[0];
+                let hourCounter = ( 24 - timeNow ) / 3;
+
+                fiveDayArray[0] = [ dayName[0] , 
+                `public/images/${weatherRes.list[0].weather[0].icon}.png`,
+                Math.floor(weatherRes.list[0].main.temp_min - 273) + '/' + Math.ceil(weatherRes.list[0].main.temp_max - 273.15)];
+
+                let arrayCounter = 1;
+                for(let i = hourCounter; i<weatherRes.list.length-9; i += 9){
+                    fiveDayArray[arrayCounter] = [ dayName[arrayCounter] , 
+                        `public/images/${weatherRes.list[i].weather[0].icon}.png`,
+                        Math.floor(weatherRes.list[i].main.temp_min - 273) + '/' + Math.ceil(weatherRes.list[i].main.temp_max - 273.15)
+                    ];
+                    arrayCounter++;
+                }
             let htmlInfo = {
                 city: data,
                 mainDesc: weatherRes.list[0].weather[0].main,
@@ -107,7 +121,7 @@ async function fetchWeather(city) {
     try{
         const response = await fetch(`http://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=ce2100858e026bf52e7c89aa4154e525`);
         const result = await response.json();
-        return result
+        return result;
     }
     catch(err){
         console.error("error in fetchWeather is" + err);
